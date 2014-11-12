@@ -15,18 +15,14 @@ import java.util.List;
  */
 public class FugaGalinhas {
 
+    
+        private static int numMovimentos = 10;
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
-        if (args.length > 0) {
-            for (int i = 0; i < args.length; i++) {
-                System.out.println(args[i]);
-            }
-        }
         int nCasas = 8;
-        Point posGalinha = new Point(4, 5);
+        Point posGalinha = new Point(4, 2);
         int kLobos = 3;
         List<Point> pLobos = new ArrayList<Point>(kLobos);
         pLobos.add(new Point(8, 1));
@@ -38,7 +34,10 @@ public class FugaGalinhas {
 
     private static boolean rotaEscapatoria(int nCasas, Point posGalinha, List<Point> pLobos) {
         printTabuleiro(nCasas, posGalinha, pLobos);
-
+        if(numMovimentos<=0){
+            System.out.println("qtd movimentos... fim");
+            return false;
+        }
         if (capturada(posGalinha, pLobos)) {
             System.out.println("galinha capturada! em: " + posGalinha.toString());
             return false;
@@ -48,10 +47,22 @@ public class FugaGalinhas {
         if (posGalinha.getX() > 1) {
             newPos = new Point(posGalinha.getX() - 1, posGalinha.getY());
             List<Point> newLobos = movimentarLobos(newPos, pLobos);
+            numMovimentos--;
             if (rotaEscapatoria(nCasas, newPos, newLobos)) {
                 return true;
             }
+            numMovimentos++;
         }
+        if (posGalinha.getX() < nCasas) {
+            newPos = new Point(posGalinha.getX() + 1, posGalinha.getY());
+            List<Point> newLobos = movimentarLobos(newPos, pLobos);
+            numMovimentos--;
+            if (rotaEscapatoria(nCasas, newPos, newLobos)) {
+                return true;
+            }
+            numMovimentos++;
+        }
+        
         //*/
         return false;
     }
@@ -85,8 +96,14 @@ public class FugaGalinhas {
 
     private static void printTabuleiro(int nCasas, Point posGalinha, List<Point> pLobos) {
 
+        String hr = "  ";
+        for (int x = 1; x <= nCasas; x++) {
+            hr+=" "+x;
+        }
+        System.out.println(hr);
+        
         for (int y = 1; y <= nCasas; y++) {
-            String linha = "|";
+            String linha = y+" |";
             for (int x = 1; x <= nCasas; x++) {
                 Point casa = new Point(x, y);
                 if (pLobos.contains(casa)) {
