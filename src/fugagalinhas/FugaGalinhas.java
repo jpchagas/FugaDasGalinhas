@@ -15,8 +15,8 @@ import java.util.List;
  */
 public class FugaGalinhas {
 
-    
-        private static int numMovimentos = 10;
+    private static int numMovimentos = 10;
+
     /**
      * @param args the command line arguments
      */
@@ -32,37 +32,42 @@ public class FugaGalinhas {
         rotaEscapatoria(nCasas, posGalinha, pLobos);
     }
 
-    private static boolean rotaEscapatoria(int nCasas, Point posGalinha, List<Point> pLobos) {
-        printTabuleiro(nCasas, posGalinha, pLobos);
-        if(numMovimentos<=0){
-            System.out.println("qtd movimentos... fim");
+    private static boolean rotaEscapatoria(int n, Point g, List<Point> lobos) {
+        if (capturada(g, lobos)) {
+            System.out.println("galinha capturada! em: " + g.toString() + ", restando " + numMovimentos + " movimentos");
             return false;
         }
-        if (capturada(posGalinha, pLobos)) {
-            System.out.println("galinha capturada! em: " + posGalinha.toString());
-            return false;
+        if (numMovimentos <= 0) {
+            System.out.println("fim dos movimentos, galinha em: " + g.toString());
+            return true;
         }
         //*
         Point newPos = null;
-        if (posGalinha.getX() > 1) {
-            newPos = new Point(posGalinha.getX() - 1, posGalinha.getY());
-            List<Point> newLobos = movimentarLobos(newPos, pLobos);
+        if (g.getX() > 1) {
+            newPos = new Point(g.getX() - 1, g.getY());
+            List<Point> newLobos = movimentarLobos(newPos, lobos);
             numMovimentos--;
-            if (rotaEscapatoria(nCasas, newPos, newLobos)) {
+            printTabuleiro(n, g, lobos);
+            System.out.println("galinha movimenta de "+g.toString()+" para << "+newPos.toString());
+            printTabuleiro(n, newPos,newLobos);
+            if (rotaEscapatoria(n, newPos, newLobos)) {
                 return true;
             }
             numMovimentos++;
         }
-        if (posGalinha.getX() < nCasas) {
-            newPos = new Point(posGalinha.getX() + 1, posGalinha.getY());
-            List<Point> newLobos = movimentarLobos(newPos, pLobos);
+        if (g.getX() < n) {
+            newPos = new Point(g.getX() + 1, g.getY());
+            List<Point> newLobos = movimentarLobos(newPos, lobos);
             numMovimentos--;
-            if (rotaEscapatoria(nCasas, newPos, newLobos)) {
+            printTabuleiro(n, g, lobos);
+            System.out.println("galinha movimenta de "+g.toString()+" para >> "+newPos.toString());
+            printTabuleiro(n, newPos,newLobos);
+            if (rotaEscapatoria(n, newPos, newLobos)) {
                 return true;
             }
             numMovimentos++;
         }
-        
+
         //*/
         return false;
     }
@@ -80,15 +85,17 @@ public class FugaGalinhas {
         List<Point> ret = new ArrayList<>(pLobos.size());
 
         for (Point l : pLobos) {
-            if (l.y == g.y) {
-                l.x = l.x + (g.x < l.x ? -1 : 1);
-            } else if (l.x == g.x) {
-                l.y = l.y + (g.y > l.y ? 1 : -1);
-            } else {
-                l.x = l.x + (g.x < l.x ? -1 : 1);
-                l.y = l.y + (g.y > l.y ? 1 : -1);
+            if (!l.equals(g)) {
+                if (l.y == g.y) {
+                    l.x = l.x + (g.x < l.x ? -1 : 1);
+                } else if (l.x == g.x) {
+                    l.y = l.y + (g.y > l.y ? 1 : -1);
+                } else {
+                    l.x = l.x + (g.x < l.x ? -1 : 1);
+                    l.y = l.y + (g.y > l.y ? 1 : -1);
+                }
             }
-            ret.add(l);
+            ret.add(new Point(l.x, l.y));
         }
 
         return ret;
@@ -98,12 +105,12 @@ public class FugaGalinhas {
 
         String hr = "  ";
         for (int x = 1; x <= nCasas; x++) {
-            hr+=" "+x;
+            hr += " " + x;
         }
         System.out.println(hr);
-        
+
         for (int y = 1; y <= nCasas; y++) {
-            String linha = y+" |";
+            String linha = y + " |";
             for (int x = 1; x <= nCasas; x++) {
                 Point casa = new Point(x, y);
                 if (pLobos.contains(casa)) {
