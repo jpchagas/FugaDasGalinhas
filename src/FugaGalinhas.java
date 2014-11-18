@@ -29,42 +29,60 @@ public class FugaGalinhas {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        int lendo = 0;
+        int nCasas = 8;
+        int kLobos = 3;
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
             String input;
-            
+
+            Estado estado = new Estado();
             while ((input = br.readLine()) != null) {
-                if(!input.equals(""))
-                    System.out.println(input);
+                if (!input.equals("")) {
+                    //System.out.println(input);
+                    if (lendo == 0) {
+                        nCasas = Integer.parseInt(input);
+                        lendo++;
+                    } else if (lendo == 1) {
+                        String[] pos = input.split(" ");
+                        estado.Galinha = new Ponto(Integer.parseInt(pos[0]), Integer.parseInt(pos[1]));
+                        lendo++;
+                    } else if (lendo == 2) {
+                        kLobos = Integer.parseInt(input);
+                        estado.Lobos = new ArrayList<>(kLobos);
+                        lendo++;
+                    } else if (lendo >= 3) {
+                        if (estado.Lobos.size() < kLobos) {
+                            String[] pos = input.split(" ");
+                            estado.Lobos.add(new Ponto(Integer.parseInt(pos[0]), Integer.parseInt(pos[1])));
+                        }
+                        lendo++;
+                    }
+                } else {
+                    break;
+                }
+            }
+
+            if (lendo > 3) {
+                System.out.println("galinha começa em: " + estado.Galinha.toString() + ", deve fugir em " + numMovimentos + " movimentos");
+                caminhoSucesso = new Stack<>();
+                printLevel = 0;
+
+                boolean fugiu = rotaEscapatoria(nCasas, estado);
+                if (fugiu) {
+                    System.out.println("Galinha fugiu, movimentos:");
+                    caminhoSucesso.add(estado);
+                    printLevel = 2;
+                    while (!caminhoSucesso.isEmpty()) {
+                        printTabuleiro(nCasas, caminhoSucesso.pop());
+                    }
+                } else {
+                    System.out.println("Por nenhum caminho a galinha consegue fugir em " + numMovimentos + " movimentos");
+                }
             }
         } catch (IOException io) {
             io.printStackTrace();
-        }
-
-        int nCasas = 8;
-        Estado estado = new Estado();
-        estado.Galinha = new Ponto(4, 2);
-        int kLobos = 3;
-        estado.Lobos = new ArrayList<>(kLobos);
-        estado.Lobos.add(new Ponto(8, 1));
-        estado.Lobos.add(new Ponto(1, 7));
-        estado.Lobos.add(new Ponto(4, 7));
-
-        System.out.println("galinha começa em: " + estado.Galinha.toString() + ", deve fugir em " + numMovimentos + " movimentos");
-        caminhoSucesso = new Stack<>();
-        printLevel = 0;
-
-        boolean fugiu = rotaEscapatoria(nCasas, estado);
-        if (fugiu && !caminhoSucesso.isEmpty()) {
-            System.out.println("Galinha fugiu, movimentos:");
-            caminhoSucesso.add(estado);
-            printLevel = 2;
-            while (!caminhoSucesso.isEmpty()) {
-                printTabuleiro(nCasas, caminhoSucesso.pop());
-            }
-        } else {
-            System.out.println("Por nenhum caminho a galinha consegue fugir em " + numMovimentos + " movimentos");
         }
     }
 
@@ -75,10 +93,12 @@ public class FugaGalinhas {
             }
             return false;
         }
-        if (caminhoSucesso.size() == numMovimentos) {
+        if (numMovimentos <= 0) {
             System.out.println("fim dos movimentos, galinha em: " + estado.Galinha.toString());
             return true;
         }
+
+        numMovimentos--;
         //*
         Estado newEstado = new Estado();
         boolean fugiu = false;
@@ -88,7 +108,7 @@ public class FugaGalinhas {
             newEstado.Lobos = movimentarLobos(newEstado.Galinha, estado.Lobos);
             if (printLevel >= 1) {
                 printTabuleiro(n, estado);
-                System.out.println(numMovimentos + " movimentos, galinha movimenta de " + estado.Galinha.toString() + " para << " + newEstado.Galinha.toString());
+                System.out.println("galinha movimenta de " + estado.Galinha.toString() + " para << " + newEstado.Galinha.toString());
                 printTabuleiro(n, newEstado);
             }
             fugiu = rotaEscapatoria(n, newEstado);
@@ -103,7 +123,7 @@ public class FugaGalinhas {
             newEstado.Lobos = movimentarLobos(newEstado.Galinha, estado.Lobos);
             if (printLevel >= 1) {
                 printTabuleiro(n, estado);
-                System.out.println(numMovimentos + " movimentos, galinha movimenta de " + estado.Galinha.toString() + " para >> " + newEstado.Galinha.toString());
+                System.out.println("galinha movimenta de " + estado.Galinha.toString() + " para >> " + newEstado.Galinha.toString());
                 printTabuleiro(n, newEstado);
             }
             fugiu = rotaEscapatoria(n, newEstado);
@@ -118,7 +138,7 @@ public class FugaGalinhas {
             newEstado.Lobos = movimentarLobos(newEstado.Galinha, estado.Lobos);
             if (printLevel >= 1) {
                 printTabuleiro(n, estado);
-                System.out.println(numMovimentos + " movimentos, galinha movimenta de " + estado.Galinha.toString() + " para /\\ " + newEstado.Galinha.toString());
+                System.out.println("galinha movimenta de " + estado.Galinha.toString() + " para /\\ " + newEstado.Galinha.toString());
                 printTabuleiro(n, newEstado);
             }
             fugiu = rotaEscapatoria(n, newEstado);
@@ -133,7 +153,7 @@ public class FugaGalinhas {
             newEstado.Lobos = movimentarLobos(newEstado.Galinha, estado.Lobos);
             if (printLevel >= 1) {
                 printTabuleiro(n, estado);
-                System.out.println(numMovimentos + " movimentos, galinha movimenta de " + estado.Galinha.toString() + " para \\/ " + newEstado.Galinha.toString());
+                System.out.println("galinha movimenta de " + estado.Galinha.toString() + " para \\/ " + newEstado.Galinha.toString());
                 printTabuleiro(n, newEstado);
             }
             fugiu = rotaEscapatoria(n, newEstado);
@@ -143,6 +163,7 @@ public class FugaGalinhas {
             }
         }
         //*/
+        numMovimentos++;
         return false;
     }
 
@@ -159,24 +180,24 @@ public class FugaGalinhas {
         List<Ponto> ret = new ArrayList<>(pLobos.size());
 
         for (Ponto l : pLobos) {
+            Ponto newL = new Ponto(l.x, l.y);
             if (!l.equals(g)) {
                 if (l.y == g.y && l.x != g.x) {
-                    l.x = l.x + (g.x < l.x ? -1 : 1);
+                    newL.x = l.x + (g.x < l.x ? -1 : 1);
                 } else if (l.y != g.y && l.x == g.x) {
-                    l.y = l.y + (g.y > l.y ? 1 : -1);
+                    newL.y = l.y + (g.y > l.y ? 1 : -1);
                 } else {
-                    l.x = l.x + (g.x < l.x ? -1 : 1);
-                    l.y = l.y + (g.y > l.y ? 1 : -1);
+                    newL.x = l.x + (g.x < l.x ? -1 : 1);
+                    newL.y = l.y + (g.y > l.y ? 1 : -1);
                 }
             }
-            ret.add(new Ponto(l.x, l.y));
+            ret.add(newL);
         }
 
         return ret;
     }
 
     private static void printTabuleiro(int nCasas, Estado estadoTabuleiro) {
-
         if (printLevel >= 2 && estadoTabuleiro != null) {
             String hr = "  ";
             for (int x = 1; x <= nCasas; x++) {
